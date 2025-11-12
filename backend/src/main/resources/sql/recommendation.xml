@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.recommendation.RecommendationRepository">
+
+    <insert id="insertRecommendation">
+        INSERT INTO recommendation (
+            recommendation_id,
+            user_id,
+            unique_id,
+            title,
+            recommendation_type,
+            track_ids,
+            artist_ids,
+            artist_names,
+            artist_genres,
+            album_image_url,
+            create_dt
+        ) VALUES (
+            #{recommendationId},
+            #{userId},
+            #{uniqueId},
+            #{title},
+            #{recommendationType},
+            #{trackIds},
+            #{artistIds},
+            #{artistNames},
+            #{artistGenres},
+            #{albumImageUrl},
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <select id="getRecommendation" resultType="com.example.demo.recommendation.Recommendation">
+        SELECT
+            recommendation_id,
+            user_id,
+            unique_id,
+            title,
+            recommendation_type,
+            track_ids,
+            artist_ids,
+            artist_names,
+            artist_genres,
+            album_image_url,
+            create_dt
+        FROM recommendation
+        WHERE recommendation_id = #{recommendationId}
+    </select>
+
+    <insert id="insertRecommendationTracks" parameterType="list">
+        INSERT INTO recommendation_tracks (
+            track_id, recommendation_id, title, artist_ids, artist_names,
+            preview_url, album_image_url, duration_ms
+        ) VALUES
+        <foreach collection="list" item="track" separator=",">
+            (#{track.trackId}, #{track.recommendationId}, #{track.title}, #{track.artistIds}, #{track.artistNames},
+            #{track.previewUrl}, #{track.albumImageUrl}, #{track.durationMs})
+        </foreach>
+    </insert>
+
+    <select id="findTracksByRecommendationId" resultType="com.example.demo.spotify.model.SpotifyTrack">
+        SELECT 
+            track_id,
+            recommendation_id,
+            title,
+            artist_ids,
+            artist_names,
+            preview_url,
+            album_image_url,
+            duration_ms
+        FROM 
+            recommendation_tracks
+        WHERE 
+            recommendation_id = #{recommendationId}
+    </select>
+</mapper>

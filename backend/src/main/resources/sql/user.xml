@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.spotify.repository.UserRepository">
+    <!-- Spotify User ID로 사용자 검색 -->
+    <select id="findBySpotifyId" parameterType="String" resultType="com.example.demo.spotify.model.User">
+        SELECT 
+            id,
+            spotify_id,
+            email,
+            display_name,
+            access_token,
+            refresh_token,
+            expires_in,
+            scope,
+            token_type,
+            created_at,
+            updated_at
+        FROM users
+        WHERE spotify_id = #{spotifyId}
+    </select>
+
+    <!-- 새로운 사용자 저장 -->
+    <insert id="save" parameterType="com.example.demo.spotify.model.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (
+            spotify_id,
+            email,
+            display_name,
+            access_token,
+            refresh_token,
+            expires_in,
+            scope,
+            token_type,
+            created_at,
+            updated_at
+        )
+        VALUES (
+            #{spotifyId},
+            #{email},
+            #{displayName},
+            #{accessToken},
+            #{refreshToken},
+            #{expiresIn},
+            #{scope},
+            #{tokenType},
+            CURRENT_TIMESTAMP,
+            CURRENT_TIMESTAMP
+        )
+    </insert>
+
+    <update id="updateToken" parameterType="com.example.demo.spotify.model.User">
+        UPDATE users
+        <set>
+            <if test="refreshToken != null">
+                refresh_token = #{refreshToken},
+            </if>
+            <if test="accessToken != null">
+                access_token = #{accessToken},
+            </if>
+            <if test="expiresIn != null">
+                expires_in = #{expiresIn},
+            </if>
+        </set>
+        WHERE spotify_id = #{spotifyId}
+    </update>
+
+</mapper>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.demo.playlist.PlaylistRepository">
+
+    <select id="getPlaylists" resultType="com.example.demo.playlist.Playlist">
+        SELECT
+            p.id,
+            p.user_id,
+            p.title,
+            (SELECT GROUP_CONCAT(album_image_url) 
+            FROM (
+                SELECT album_image_url
+                FROM playlist_tracks pt
+                WHERE pt.playlist_id = p.id
+                ORDER BY pt.id
+                LIMIT 4
+            ) AS limited_tracks) AS thumbnailUrl,
+            p.create_dt,
+            (SELECT COUNT(1) 
+            FROM playlist_tracks pt 
+            WHERE pt.playlist_id = p.id) AS totalTracks
+        FROM
+            playlist p
+        WHERE
+            p.user_id = #{userId} OR (p.user_id = 'system' AND p.id = 0)
+        ORDER BY
+            CASE WHEN p.user_id = 'system' THEN 0 ELSE 1 END,
+            p.create_dt DESC
+    </select>
+
+    <select id="getPlaylist" resultType="com.example.demo.playlist.Playlist">
+        SELECT
+            id,
+            user_id,
+            title,
+            create_dt,
+            (SELECT COUNT(1) FROM playlist_tracks WHERE playlist_id = playlist.id) as totalTracks
+        FROM
+            playlist
+        WHERE
+            id = #{playlistId}
+    </select>
+
+    <insert id="createPlaylist" parameterType="com.example.demo.playlist.Playlist">
+        INSERT INTO playlist (
+            user_id,
+            title, 
+            create_dt
+        ) VALUES (
+            #{userId},
+            #{title},
+            NOW()
+        )
+    </insert>
+
+    <delete id="deletePlaylistById">
+        DELETE
+        FROM playlist
+        WHERE id = #{playlistId}
+    </delete>
+
+    <update id="updatePlaylistById">
+        UPDATE playlist
+        SET title = #{title}
+        WHERE id = #{playlistId}
+    </update>
+
+    <select id="getPlaylistTracksById" resultType="com.example.demo.playlist.PlaylistTrack">
+        SELECT
+            id,
+            playlist_id,
+            track_id,
+            title,
+            artist_ids,
+            artist_names,
+            preview_url,
+            album_image_url,
+            duration_ms
+        FROM
+            playlist_tracks
+        WHERE
+            playlist_id = #{playlistId}
+    </select>
+
+    <insert id="addTrackToPlaylist">
+        INSERT INTO playlist_tracks (
+            playlist_id,
+            track_id,
+            title,
+            artist_ids,
+            artist_names,
+            preview_url,
+            album_image_url,
+            duration_ms
+        ) VALUES (
+            #{playlistId},
+            #{trackId},
+            #{title},
+            #{artistIds}, 
+            #{artistNames},
+            #{previewUrl},
+            #{albumImageUrl},
+            #{durationMs})
+    </insert>
+
+<!-- 플리 id도 있어야 됨 ㅠ -->
+    <delete id="deleteTrackById">
+        DELETE
+        FROM playlist_tracks
+        WHERE id = #{id} AND playlist_id =#{playlistId}
+    </delete>
+</mapper>
