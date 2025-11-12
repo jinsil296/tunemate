@@ -1,0 +1,44 @@
+# Root .gitignore - common patterns for the whole repository
+
+# macOS
+.DS_Store
+
+# Environment files (local secrets)
+.env
+.env.local
+.env.*.local
+
+# Node / Frontend
+node_modules/
+dist/
+web-build/
+
+# Java / Gradle / Spring
+build/
+.gradle/
+out/
+*.iml
+*.class
+
+# Android / iOS
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/build/
+
+# Keystores / keys
+*.keystore
+*.jks
+*.key
+*.p12
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+
+# Misc
+Thumbs.db
